@@ -10,7 +10,7 @@ app.use(cors());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'qwerasdf12',
+    password: '33916807Ct',
     database: 'K12'
 });
 
@@ -1100,6 +1100,148 @@ app.get('/api/option-counts', async (req, res) => {
     `;
 
     db.query(optionCountsQuery, [school_no, class_no], (err, results) => {
+        if (err) {
+            console.error('Database query failed:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+
+        // 格式化结果为对象形式
+        const optionCounts = results.reduce((acc, row) => {
+            acc[row.option_value] = row.count;
+            return acc;
+        }, {});
+
+        console.log("选择人数", optionCounts);
+        res.json({ optionCounts });
+    });
+});
+
+app.get('/api/option-percentages-campusCom', async (req, res) => {
+    console.log("校区比较")
+    const question = req.query.question;
+    const selectedSchool = req.query.school;
+    const school_no = selectedSchool.charAt(0);
+
+    console.log("人数比", school_no);
+
+    const questionColumn = `${question}_score`;
+    const peerAccuracyQuery = `
+        SELECT
+            SUM(CASE WHEN ${questionColumn} = 1 THEN 1 ELSE 0 END) AS correct_count,
+            COUNT(*) AS total_count
+        FROM gradeHave
+        WHERE school_no = ?
+    `;
+
+    db.query(peerAccuracyQuery, [school_no], (err, results) => {
+        if (err) {
+            console.error('Database query failed:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+
+        const { correct_count, total_count } = results[0];
+        console.log("正确人数", correct_count);
+        console.log("总人数", total_count);
+        const optionPercentages = `${correct_count}/${total_count}`;
+        console.log("正确人数比例", optionPercentages);
+        res.json({ optionPercentages });
+    });
+});
+
+app.get('/api/option-accuracy-campusCom', async (req, res) => {
+    const question = req.query.question;
+    const selectedSchool = req.query.school;
+    const school_no = selectedSchool.charAt(0);
+
+    console.log("学校编号", school_no);
+
+    const questionColumn = `${question}_score`;
+    const peerAccuracyQuery = `
+        SELECT
+            SUM(CASE WHEN ${questionColumn} = 1 THEN 1 ELSE 0 END) AS correct_count,
+            COUNT(*) AS total_count
+        FROM gradeHave
+        WHERE school_no = ?
+    `;
+
+    db.query(peerAccuracyQuery, [school_no], (err, results) => {
+        if (err) {
+            console.error('数据库查询失败:', err);
+            return res.status(500).json({ message: '服务器错误' });
+        }
+
+        const { correct_count, total_count } = results[0];
+        console.log("正确人数", correct_count);
+        console.log("总人数", total_count);
+
+        // 计算正确率，防止除以零
+        const accuracyRate = total_count > 0 ? (correct_count / total_count) * 100 : 0;
+        console.log("正确率", accuracyRate.toFixed(2));
+
+        res.json({ accuracyRate: accuracyRate.toFixed(2) });
+    });
+});
+
+app.get('/api/option-accuracy', async (req, res) => {
+    const question = req.query.question;
+    const selectedClass = req.query.class;
+    const school_no = selectedClass.charAt(0);
+    const class_no = selectedClass.charAt(1);
+
+    console.log("学校编号", school_no);
+    console.log("班级编号", class_no);
+
+    const questionColumn = `${question}_score`;
+    const peerAccuracyQuery = `
+        SELECT
+            SUM(CASE WHEN ${questionColumn} = 1 THEN 1 ELSE 0 END) AS correct_count,
+            COUNT(*) AS total_count
+        FROM gradeHave
+        WHERE school_no = ? AND class_no = ?
+    `;
+
+    db.query(peerAccuracyQuery, [school_no, class_no], (err, results) => {
+        if (err) {
+            console.error('数据库查询失败:', err);
+            return res.status(500).json({ message: '服务器错误' });
+        }
+
+        const { correct_count, total_count } = results[0];
+        console.log("正确人数", correct_count);
+        console.log("总人数", total_count);
+
+        // 计算正确率，防止除以零
+        const accuracyRate = total_count > 0 ? (correct_count / total_count) * 100 : 0;
+        console.log("正确率", accuracyRate.toFixed(2));
+
+        res.json({ accuracyRate: accuracyRate.toFixed(2) });
+    });
+});
+
+// 获取每个选项的选择人数
+app.get('/api/option-counts-campusCom', async (req, res) => {
+    console.log("校区比较")
+    const question = req.query.question; // 例如: 'PART_I_1'
+    const selectedSchool = req.query.school;
+    const school_no = selectedSchool.charAt(0);
+
+    console.log(question);
+    console.log(school_no);
+
+    // 查询每个选项的选择人数
+    const optionCountsQuery = `
+        SELECT
+            ${question} AS option_value,
+            COUNT(*) AS count
+        FROM
+            gradeHave
+        WHERE
+            school_no = ? AND ${question} IS NOT NULL
+        GROUP BY
+            ${question}
+    `;
+
+    db.query(optionCountsQuery, [school_no], (err, results) => {
         if (err) {
             console.error('Database query failed:', err);
             return res.status(500).json({ message: 'Server error' });
