@@ -216,7 +216,7 @@ import "./Part.css";
 export default {
     data() {
         return {
-            questions: ['PART2_V_1_1', 'PART2_V_1_2', 'PART2_V_2_1', 'PART2_V_2_2', 'PART2_V_3_1', 'PART2_V_3_2', 'PART2_V_4_1', 'PART2_V_4_2', 'PART2_V_5_1', 'PART2_V_5_2'],
+            questions: ['PART2_V_1', 'PART2_V_2', 'PART2_V_3', 'PART2_V_4', 'PART2_V_5'],
             listeningText: '',
             correctAnswer: '',
             studentAnswer: '',
@@ -241,28 +241,18 @@ export default {
             optionCounts: {},
             optionPercentages: {},
             staticData: {
-                'PART2_V_1_1': { difficulty: '★★★' },
-                'PART2_V_1_2': { difficulty: '★★★' },
-                'PART2_V_2_1': { difficulty: '★★★' },
-                'PART2_V_2_2': { difficulty: '★★★' },
-                'PART2_V_3_1': { difficulty: '★★★' },
-                'PART2_V_3_2': { difficulty: '★★★' },
-                'PART2_V_4_1': { difficulty: '★★★' },
-                'PART2_V_4_2': { difficulty: '★★★' },
-                'PART2_V_5_1': { difficulty: '★★★' },
-                'PART2_V_5_2': { difficulty: '★★★' },
+                'PART2_V_1': { difficulty: '★★★' },
+                'PART2_V_2': { difficulty: '★★★' },
+                'PART2_V_3': { difficulty: '★★★' },
+                'PART2_V_4': { difficulty: '★★★' },
+                'PART2_V_5': { difficulty: '★★★' },
             },
             questionDescriptions: {
-                'PART2_V_1_1': '1. The coffee is sweet. （改为否定句，意思不变）  The coffee __________  __________.（第一空）',
-                'PART2_V_1_2': '1. The coffee is sweet. （改为否定句，意思不变）  The coffee __________  __________.（第二空）',
-                'PART2_V_2_1': '2. We ride a bicycle in the park. （改为一般疑问句）  __________  __________ ride a bicycle in the park? （第一空）',
-                'PART2_V_2_2': '2. We ride a bicycle in the park. （改为一般疑问句）  __________  __________ ride a bicycle in the park? （第二空）',
-                'PART2_V_3_1': '3. I have two arms. They are long. （合并成一句）  My __________ are __________. （第一空）',
-                'PART2_V_3_2': '3. I have two arms. They are long. （合并成一句）  My __________ are __________. （第二空）',
-                'PART2_V_4_1': '4. It is summer now.	 （对划线部分提问）  __________  ________is it now? (第一空)',
-                'PART2_V_4_2': '4. It is summer now.	 （对划线部分提问）  __________  ________is it now? (第二空)',
-                'PART2_V_5_1': '5. Are your hats blue?（改成肯定句）My _______ ________ blue. (第一空)',
-                'PART2_V_5_2': '5. Are your hats blue?（改成肯定句）My _______ ________ blue. (第二空)'
+                'PART2_V_1': '1. The coffee is sweet. （改为否定句，意思不变）  The coffee __________  __________.',
+                'PART2_V_2': '2. We ride a bicycle in the park. （改为一般疑问句）  __________  __________ ride a bicycle in the park?',
+                'PART2_V_3': '3. I have two arms. They are long. （合并成一句）  My __________ are __________. ',
+                'PART2_V_4': '4. It is summer now.	 （对划线部分提问）  __________  ________is it now? ',
+                'PART2_V_5': '5. Are your hats blue?（改成肯定句）My _______ ________ blue. ',
             },
             classOptions: []
         };

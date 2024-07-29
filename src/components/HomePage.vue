@@ -728,7 +728,7 @@ export default {
             ].join("<br/>");
           },
         },
-        xAxis: {
+        yAxis: {
           type: "category",
           data: ["考情数据"],
           axisLabel: {
@@ -736,14 +736,41 @@ export default {
           },
           show: false,
         },
-        yAxis: {
+        xAxis: {
           type: "value",
+          max: null,
+          min: 30
         },
         series: [
           {
             name: "分数分布",
             type: "boxplot",
             data: boxplotData,
+            itemStyle: {
+              borderColor: '#6de4c6', // 箱线图颜色
+              color: 'transparent',
+              borderWidth: 3
+            },
+            markLine: {
+              data: [
+                {
+                  name: '平均分',
+                  xAxis: data.avg_score,
+                  label: {
+                    formatter: '平均分: {c}',
+                    color: "6de4c6"
+                  }
+                }
+              ],
+              lineStyle: {
+                color: '#6de4c6',
+                type: 'dashed',
+                borderWidth: 3
+              },
+              tooltip: {
+                show: false
+              }
+            },
             tooltip: {
               formatter: function (param) {
                 return [
@@ -822,7 +849,7 @@ export default {
           },
         },
 
-        xAxis: {
+        yAxis: {
           type: "category",
           data: [], // 使用班级名称作为x轴数据
           boundaryGap: true,
@@ -836,14 +863,42 @@ export default {
           show: false,
         },
 
-        yAxis: {
+        xAxis: {
           type: "value",
+          max: null,
+          min: 30
         },
         series: [
           {
             name: classNames[0],
             type: "boxplot",
             data: [boxplotData[0]],
+            itemStyle: {
+              borderColor: '#6de4c6', // 第一个班级的箱线图颜色
+              color: 'transparent',
+              borderWidth: 3
+            },
+            markLine: {
+              data: [
+                {
+                  name: '平均分',
+                  xAxis: data.avg_score,
+                  label: {
+                    formatter: '平均分: {c}',
+                    color: '#6de4c6'
+                  }
+                }
+              ],
+              lineStyle: {
+                color: '#6de4c6',
+                type: 'dashed',
+                borderWidth: 3
+              },
+              tooltip: {
+                show: false
+              }
+            },
+
             tooltip: {
               formatter: function (param) {
                 return [
@@ -857,10 +912,37 @@ export default {
               },
             },
           },
+
           {
             name: classNames[1],
             type: "boxplot",
             data: [boxplotData[1]],
+            itemStyle: {
+              borderColor: '#ff7f50', // 第一个班级的箱线图颜色
+              color: 'transparent',
+              borderWidth: 3
+            },
+            markLine: {
+              data: [
+                {
+                  name: '平均分',
+                  xAxis: data2.avg_score,
+                  label: {
+                    formatter: '平均分: {c}',
+                    position: 'start',
+                    color: '#ff7f50'
+                  }
+                }
+              ],
+              lineStyle: {
+                color: '#ff7f50',
+                type: 'dashed',
+                borderWidth: 3
+              },
+              tooltip: {
+                show: false
+              }
+            },
             tooltip: {
               formatter: function (param) {
                 return [
@@ -937,7 +1019,7 @@ export default {
           },
         },
 
-        xAxis: {
+        yAxis: {
           type: "category",
           data: [], // 你可以根据需要自定义数据
           boundaryGap: true,
@@ -953,14 +1035,43 @@ export default {
           },
           show: false,
         },
-        yAxis: {
+        xAxis: {
           type: "value",
+          max: null,
+          min: 30
         },
         series: [
           {
             name: "张江",
             type: "boxplot",
             data: [boxplotData[0]],
+
+            itemStyle: {
+              borderColor: '#6de4c6', // 第一个班级的箱线图颜色
+              color: 'transparent',
+              borderWidth: 3
+            },
+            markLine: {
+              data: [
+                {
+                  name: '平均分',
+                  xAxis: data.avg_score,
+                  label: {
+                    formatter: '平均分: {c}',
+                    color: '#6de4c6'
+                  }
+                }
+              ],
+              lineStyle: {
+                color: '#6de4c6',
+                type: 'dashed',
+                borderWidth: 3
+              },
+              tooltip: {
+                show: false
+              }
+            },
+            
             tooltip: {
               formatter: function (param) {
                 return [
@@ -978,6 +1089,34 @@ export default {
             name: "滨江",
             type: "boxplot",
             data: [boxplotData[1]],
+
+            itemStyle: {
+              borderColor: '#ff7f50', // 第一个班级的箱线图颜色
+              color: 'transparent',
+              borderWidth: 3
+            },
+            markLine: {
+              data: [
+                {
+                  name: '平均分',
+                  xAxis: data2.avg_score,
+                  label: {
+                    formatter: '平均分: {c}',
+                    position: 'start',
+                    color: '#ff7f50'
+                  }
+                }
+              ],
+              lineStyle: {
+                color: '#ff7f50',
+                type: 'dashed',
+                borderWidth: 3
+              },
+              tooltip: {
+                show: false
+              }
+            },
+
             tooltip: {
               formatter: function (param) {
                 return [
