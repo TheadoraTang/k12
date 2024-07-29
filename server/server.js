@@ -11,7 +11,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '123456',
-    database: 'K12'
+    database: 'k12',
 });
 
 db.connect(err => {
@@ -464,7 +464,7 @@ app.get('/api/admin-score-summary-campusCom', (req, res) => {
                 FROM gradeHave
                 WHERE school_no = ?
                 ORDER BY score
-                LIMIT 1
+                    LIMIT 1
                 OFFSET ?
             `;
 
@@ -482,7 +482,7 @@ app.get('/api/admin-score-summary-campusCom', (req, res) => {
                     FROM gradeHave
                     WHERE school_no = ?
                     ORDER BY score
-                    LIMIT 1
+                        LIMIT 1
                     OFFSET ?
                 `;
 
@@ -500,7 +500,7 @@ app.get('/api/admin-score-summary-campusCom', (req, res) => {
                         FROM gradeHave
                         WHERE school_no = ?
                         ORDER BY score
-                        LIMIT 1
+                            LIMIT 1
                         OFFSET ?
                     `;
 
@@ -1116,148 +1116,6 @@ app.get('/api/option-counts', async (req, res) => {
     });
 });
 
-app.get('/api/option-percentages-campusCom', async (req, res) => {
-    console.log("校区比较")
-    const question = req.query.question;
-    const selectedSchool = req.query.school;
-    const school_no = selectedSchool.charAt(0);
-
-    console.log("人数比", school_no);
-
-    const questionColumn = `${question}_score`;
-    const peerAccuracyQuery = `
-        SELECT
-            SUM(CASE WHEN ${questionColumn} = 1 THEN 1 ELSE 0 END) AS correct_count,
-            COUNT(*) AS total_count
-        FROM gradeHave
-        WHERE school_no = ?
-    `;
-
-    db.query(peerAccuracyQuery, [school_no], (err, results) => {
-        if (err) {
-            console.error('Database query failed:', err);
-            return res.status(500).json({ message: 'Server error' });
-        }
-
-        const { correct_count, total_count } = results[0];
-        console.log("正确人数", correct_count);
-        console.log("总人数", total_count);
-        const optionPercentages = `${correct_count}/${total_count}`;
-        console.log("正确人数比例", optionPercentages);
-        res.json({ optionPercentages });
-    });
-});
-
-app.get('/api/option-accuracy-campusCom', async (req, res) => {
-    const question = req.query.question;
-    const selectedSchool = req.query.school;
-    const school_no = selectedSchool.charAt(0);
-
-    console.log("学校编号", school_no);
-
-    const questionColumn = `${question}_score`;
-    const peerAccuracyQuery = `
-        SELECT
-            SUM(CASE WHEN ${questionColumn} = 1 THEN 1 ELSE 0 END) AS correct_count,
-            COUNT(*) AS total_count
-        FROM gradeHave
-        WHERE school_no = ?
-    `;
-
-    db.query(peerAccuracyQuery, [school_no], (err, results) => {
-        if (err) {
-            console.error('数据库查询失败:', err);
-            return res.status(500).json({ message: '服务器错误' });
-        }
-
-        const { correct_count, total_count } = results[0];
-        console.log("正确人数", correct_count);
-        console.log("总人数", total_count);
-
-        // 计算正确率，防止除以零
-        const accuracyRate = total_count > 0 ? (correct_count / total_count) * 100 : 0;
-        console.log("正确率", accuracyRate.toFixed(2));
-
-        res.json({ accuracyRate: accuracyRate.toFixed(2) });
-    });
-});
-
-app.get('/api/option-accuracy', async (req, res) => {
-    const question = req.query.question;
-    const selectedClass = req.query.class;
-    const school_no = selectedClass.charAt(0);
-    const class_no = selectedClass.charAt(1);
-
-    console.log("学校编号", school_no);
-    console.log("班级编号", class_no);
-
-    const questionColumn = `${question}_score`;
-    const peerAccuracyQuery = `
-        SELECT
-            SUM(CASE WHEN ${questionColumn} = 1 THEN 1 ELSE 0 END) AS correct_count,
-            COUNT(*) AS total_count
-        FROM gradeHave
-        WHERE school_no = ? AND class_no = ?
-    `;
-
-    db.query(peerAccuracyQuery, [school_no, class_no], (err, results) => {
-        if (err) {
-            console.error('数据库查询失败:', err);
-            return res.status(500).json({ message: '服务器错误' });
-        }
-
-        const { correct_count, total_count } = results[0];
-        console.log("正确人数", correct_count);
-        console.log("总人数", total_count);
-
-        // 计算正确率，防止除以零
-        const accuracyRate = total_count > 0 ? (correct_count / total_count) * 100 : 0;
-        console.log("正确率", accuracyRate.toFixed(2));
-
-        res.json({ accuracyRate: accuracyRate.toFixed(2) });
-    });
-});
-
-// 获取每个选项的选择人数
-app.get('/api/option-counts-campusCom', async (req, res) => {
-    console.log("校区比较")
-    const question = req.query.question; // 例如: 'PART_I_1'
-    const selectedSchool = req.query.school;
-    const school_no = selectedSchool.charAt(0);
-
-    console.log(question);
-    console.log(school_no);
-
-    // 查询每个选项的选择人数
-    const optionCountsQuery = `
-        SELECT
-            ${question} AS option_value,
-            COUNT(*) AS count
-        FROM
-            gradeHave
-        WHERE
-            school_no = ? AND ${question} IS NOT NULL
-        GROUP BY
-            ${question}
-    `;
-
-    db.query(optionCountsQuery, [school_no], (err, results) => {
-        if (err) {
-            console.error('Database query failed:', err);
-            return res.status(500).json({ message: 'Server error' });
-        }
-
-        // 格式化结果为对象形式
-        const optionCounts = results.reduce((acc, row) => {
-            acc[row.option_value] = row.count;
-            return acc;
-        }, {});
-
-        console.log("选择人数", optionCounts);
-        res.json({ optionCounts });
-    });
-});
-
 //对于没有听力原文或者阅读原文的题目来说
 app.get('/api/question_single', (req, res) => {
     const { question } = req.query;
@@ -1573,12 +1431,12 @@ app.get('/teacher/:username', (req, res) => {
 app.get('/part2_9/errors/:username', (req, res) => {
     const username = req.params.username;
     const sql = `
-        SELECT 
-            \`WordPhrase choice\`, \`Pronouns & Determiners\`, Verbs, 
-            Conciseness, Style, \`Adverbs & Adjectives\`, Tense, Articles, \`Singular-Plural nouns\`, 
-            Prepositions, Punctuation, \`Spellings & Typos\`, \`Vague Words\`, Contractions, 
+        SELECT
+            \`WordPhrase choice\`, \`Pronouns & Determiners\`, Verbs,
+            Conciseness, Style, \`Adverbs & Adjectives\`, Tense, Articles, \`Singular-Plural nouns\`,
+            Prepositions, Punctuation, \`Spellings & Typos\`, \`Vague Words\`, Contractions,
             \`English Style-US\`, Conjunctions, Others, \`Capitalization & Spacing\`, \`Subject-verb agreement\`
-        FROM part2_9 
+        FROM part2_9
         WHERE name = ?
     `;
 
@@ -1600,27 +1458,24 @@ app.get('/part2_9/errors/:username', (req, res) => {
 app.get('/part2_9/errors/class/:school_no/:class_no', (req, res) => {
     const { school_no, class_no } = req.params;
     const sql = `
-        SELECT 
-            SUM(\`WordPhrase choice\`) AS \`WordPhrase choice\`, 
-            SUM(\`Pronouns & Determiners\`) AS \`Pronouns & Determiners\`, 
+        SELECT
+            SUM(\`WordPhrase choice\`) AS \`WordPhrase choice\`,
+            SUM(\`Pronouns & Determiners\`) AS \`Pronouns & Determiners\`,
             SUM(Verbs) AS Verbs,
-            SUM(Conciseness) AS Conciseness, 
-            SUM(Style) AS Style, 
-            SUM(\`Adverbs & Adjectives\`) AS \`Adverbs & Adjectives\`, 
-            SUM(Tense) AS Tense, 
-            SUM(Articles) AS Articles, 
+            SUM(Conciseness) AS Conciseness,
+            SUM(\`Adverbs & Adjectives\`) AS \`Adverbs & Adjectives\`,
+            SUM(Tense) AS Tense,
+            SUM(Articles) AS Articles,
             SUM(\`Singular-Plural nouns\`) AS \`Singular-Plural nouns\`,
-            SUM(Prepositions) AS Prepositions, 
-            SUM(Punctuation) AS Punctuation, 
-            SUM(\`Spellings & Typos\`) AS \`Spellings & Typos\`, 
-            SUM(\`Vague Words\`) AS \`Vague Words\`, 
-            SUM(Contractions) AS Contractions, 
-            SUM(\`English Style-US\`) AS \`English Style-US\`, 
-            SUM(Conjunctions) AS Conjunctions, 
-            SUM(Others) AS Others, 
-            SUM(\`Capitalization & Spacing\`) AS \`Capitalization & Spacing\`, 
-            SUM(\`Subject-verb agreement\`) AS \`Subject-verb agreement\`
-        FROM part2_9 
+            SUM(Prepositions) AS Prepositions,
+            SUM(Punctuation) AS Punctuation,
+            SUM(\`Spellings & Typos\`) AS \`Spellings & Typos\`,
+            SUM(Contractions) AS Contractions,
+            SUM(Conjunctions) AS Conjunctions,
+            SUM(\`Capitalization & Spacing\`) AS \`Capitalization & Spacing\`,
+            SUM(\`Subject-verb agreement\`) AS \`Subject-verb agreement\`,
+            SUM(Others) AS Others
+        FROM part2_9
         WHERE school_no = ? AND class_no = ?
     `;
 
@@ -1761,7 +1616,6 @@ app.get('/part2_9/overall', (req, res) => {
                 SUM(\`Pronouns & Determiners\`) AS \`Pronouns & Determiners\`, 
                 SUM(Verbs) AS Verbs,
                 SUM(Conciseness) AS Conciseness, 
-                SUM(Style) AS Style, 
                 SUM(\`Adverbs & Adjectives\`) AS \`Adverbs & Adjectives\`, 
                 SUM(Tense) AS Tense, 
                 SUM(Articles) AS Articles, 
@@ -1769,13 +1623,11 @@ app.get('/part2_9/overall', (req, res) => {
                 SUM(Prepositions) AS Prepositions, 
                 SUM(Punctuation) AS Punctuation, 
                 SUM(\`Spellings & Typos\`) AS \`Spellings & Typos\`, 
-                SUM(\`Vague Words\`) AS \`Vague Words\`, 
                 SUM(Contractions) AS Contractions, 
-                SUM(\`English Style-US\`) AS \`English Style-US\`, 
                 SUM(Conjunctions) AS Conjunctions, 
-                SUM(Others) AS Others, 
                 SUM(\`Capitalization & Spacing\`) AS \`Capitalization & Spacing\`, 
-                SUM(\`Subject-verb agreement\`) AS \`Subject-verb agreement\`
+                SUM(\`Subject-verb agreement\`) AS \`Subject-verb agreement\`,
+                SUM(Others) AS Others
             FROM part2_9
         `;
 
@@ -1801,9 +1653,9 @@ app.get('/part2_9/campus/:school_no', (req, res) => {
 
     // 获取校区的平均数据
     const avgSql = `
-        SELECT 
-            AVG(score) AS averageScore, 
-            AVG(word_counts) AS averageWordCounts, 
+        SELECT
+            AVG(score) AS averageScore,
+            AVG(word_counts) AS averageWordCounts,
             AVG(sentence_counts) AS averageSentenceCounts
         FROM part2_9
         WHERE school_no = ?
@@ -1825,26 +1677,23 @@ app.get('/part2_9/campus/:school_no', (req, res) => {
 
         // 获取校区的错误类型数据
         const errorTypesSql = `
-            SELECT 
-                SUM(\`WordPhrase choice\`) AS \`WordPhrase choice\`, 
-                SUM(\`Pronouns & Determiners\`) AS \`Pronouns & Determiners\`, 
+            SELECT
+                SUM(\`WordPhrase choice\`) AS \`WordPhrase choice\`,
+                SUM(\`Pronouns & Determiners\`) AS \`Pronouns & Determiners\`,
                 SUM(Verbs) AS Verbs,
-                SUM(Conciseness) AS Conciseness, 
-                SUM(Style) AS Style, 
-                SUM(\`Adverbs & Adjectives\`) AS \`Adverbs & Adjectives\`, 
-                SUM(Tense) AS Tense, 
-                SUM(Articles) AS Articles, 
+                SUM(Conciseness) AS Conciseness,
+                SUM(\`Adverbs & Adjectives\`) AS \`Adverbs & Adjectives\`,
+                SUM(Tense) AS Tense,
+                SUM(Articles) AS Articles,
                 SUM(\`Singular-Plural nouns\`) AS \`Singular-Plural nouns\`,
-                SUM(Prepositions) AS Prepositions, 
-                SUM(Punctuation) AS Punctuation, 
-                SUM(\`Spellings & Typos\`) AS \`Spellings & Typos\`, 
-                SUM(\`Vague Words\`) AS \`Vague Words\`, 
-                SUM(Contractions) AS Contractions, 
-                SUM(\`English Style-US\`) AS \`English Style-US\`, 
-                SUM(Conjunctions) AS Conjunctions, 
-                SUM(Others) AS Others, 
-                SUM(\`Capitalization & Spacing\`) AS \`Capitalization & Spacing\`, 
-                SUM(\`Subject-verb agreement\`) AS \`Subject-verb agreement\`
+                SUM(Prepositions) AS Prepositions,
+                SUM(Punctuation) AS Punctuation,
+                SUM(\`Spellings & Typos\`) AS \`Spellings & Typos\`,
+                SUM(Contractions) AS Contractions,
+                SUM(Conjunctions) AS Conjunctions,
+                SUM(\`Capitalization & Spacing\`) AS \`Capitalization & Spacing\`,
+                SUM(\`Subject-verb agreement\`) AS \`Subject-verb agreement\`,
+                SUM(Others) AS Others
             FROM part2_9
             WHERE school_no = ?
         `;
@@ -1980,50 +1829,50 @@ app.get('/api/option-accuracy', async (req, res) => {
 
 ///学生个体成绩获取
 app.get('/api/student-total-score', (req, res) => {
-        console.log("进入学生成绩查询");
-        const name = req.query.name;
-        console.log("name", name);
-    
-        if (!name) {
-            return res.status(400).json({ message: 'Name parameter is required' });
-        }
-    
-        // 查询学生的 school_no, class_no 和 stu_no
-        const studentInfoQuery = `SELECT school_no, class_no, stu_no FROM stu_class WHERE user = ?`;
-    
-        db.query(studentInfoQuery, [name], (err, studentInfoResults) => {
-            if (err) {
-                console.error('Database query failed:', err);
-                return res.status(500).json({ message: 'Server error' });
-            }
-    
-            if (studentInfoResults.length === 0) {
-                return res.status(404).json({ message: 'Student not found' });
-            }
-    
-            let { school_no, class_no, stu_no } = studentInfoResults[0];
-            school_no = school_no.trim();
-            class_no = class_no.trim();
-            stu_no = stu_no.trim();
-            console.log(school_no, class_no, stu_no);
-    
-            // 查询学生成绩
-            const studentScoresQuery = `SELECT score FROM gradeHave WHERE school_no = ? AND class_no = ? AND stu_no = ?`;
-    
-            console.log('Executing query:', studentScoresQuery, 'with params:', [school_no, class_no, stu_no]);
-            db.query(studentScoresQuery, [school_no, class_no, stu_no], (err, studentScoresResults) => {
-                if (err) {
-                    console.error('Database query failed:', err);
-                    return res.status(500).json({ message: 'Server error' });
-                }
-    
-                if (studentScoresResults.length === 0) {
-                    return res.status(404).json({ message: 'Student scores not found' });
-                }
-    
-                const studentScores = studentScoresResults[0];
-                console.log(studentScores);
-                res.json({ scores: studentScores });
-            });
-        });
+    console.log("进入学生成绩查询");
+    const name = req.query.name;
+    console.log("name", name);
+
+    if (!name) {
+        return res.status(400).json({ message: 'Name parameter is required' });
+    }
+
+    // 查询学生的 school_no, class_no 和 stu_no
+    const studentInfoQuery = `SELECT school_no, class_no, stu_no FROM stu_class WHERE user = ?`;
+
+    db.query(studentInfoQuery, [name], (err, studentInfoResults) => {
+        if (err) {
+            console.error('Database query failed:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+
+        if (studentInfoResults.length === 0) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        let { school_no, class_no, stu_no } = studentInfoResults[0];
+        school_no = school_no.trim();
+        class_no = class_no.trim();
+        stu_no = stu_no.trim();
+        console.log(school_no, class_no, stu_no);
+
+        // 查询学生成绩
+        const studentScoresQuery = `SELECT score FROM gradeHave WHERE school_no = ? AND class_no = ? AND stu_no = ?`;
+
+        console.log('Executing query:', studentScoresQuery, 'with params:', [school_no, class_no, stu_no]);
+        db.query(studentScoresQuery, [school_no, class_no, stu_no], (err, studentScoresResults) => {
+            if (err) {
+                console.error('Database query failed:', err);
+                return res.status(500).json({ message: 'Server error' });
+            }
+
+            if (studentScoresResults.length === 0) {
+                return res.status(404).json({ message: 'Student scores not found' });
+            }
+
+            const studentScores = studentScoresResults[0];
+            console.log(studentScores);
+            res.json({ scores: studentScores });
+        });
     });
+});
