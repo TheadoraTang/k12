@@ -4,15 +4,59 @@
         <h2>Ⅴ. Rewrite the sentences（按要求改写下列句子，每线一词）：【语法-句法】</h2>
 
         <div v-if="permission === '2'" class="class-select">
+          <label for="compare-type-select">选择对比类型：</label>
+          <select id="compare-type-select" v-model="compareType" @change="fetchData">
+            <option value="single">单个班级</option>
+            <option value="double-class">两个班级</option>
+            <option value="double-campus">两个校区</option>
+          </select>
+
+          <div v-if="compareType === 'single'">
             <label for="class-select">选择班级：</label>
             <select id="class-select" v-model="selectedClass" @change="fetchData">
-                <option value="11">张江一班</option>
-                <option value="12">张江二班</option>
-                <option value="13">张江三班</option>
-                <option value="21">滨江一班</option>
-                <option value="22">滨江二班</option>
-                <option value="23">滨江三班</option>
+              <option value="11">张江一班</option>
+              <option value="12">张江二班</option>
+              <option value="13">张江三班</option>
+              <option value="21">滨江一班</option>
+              <option value="22">滨江二班</option>
+              <option value="23">滨江三班</option>
             </select>
+          </div>
+
+          <div v-if="compareType === 'double-class'">
+            <label for="class-select-1">选择班级 1：</label>
+            <select id="class-select-1" v-model="selectedClass1" @change="fetchData">
+              <option value="11">张江一班</option>
+              <option value="12">张江二班</option>
+              <option value="13">张江三班</option>
+              <option value="21">滨江一班</option>
+              <option value="22">滨江二班</option>
+              <option value="23">滨江三班</option>
+            </select>
+            <label for="class-select-2">选择班级 2：</label>
+            <select id="class-select-2" v-model="selectedClass2" @change="fetchData">
+              <option value="11">张江一班</option>
+              <option value="12">张江二班</option>
+              <option value="13">张江三班</option>
+              <option value="21">滨江一班</option>
+              <option value="22">滨江二班</option>
+              <option value="23">滨江三班</option>
+            </select>
+          </div>
+
+          <div v-if="compareType === 'double-campus'">
+            <label for="campus-select-1">选择校区1：</label>
+            <select id="campus-select-1" v-model="selectedCampus1" @change="fetchData">
+              <option value="1">张江校区</option>
+              <option value="2">滨江校区</option>
+            </select>
+
+            <label for="campus-select-2">选择校区2：</label>
+            <select id="campus-select-2" v-model="selectedCampus2" @change="fetchData">
+              <option value="1">张江校区</option>
+              <option value="2">滨江校区</option>
+            </select>
+          </div>
         </div>
 
         <div v-if="permission === '0'" class="class-select">
@@ -50,8 +94,8 @@
         </div>
         <div class="right-column table-container"> 
 
-          <!--教师端、管理员端-->
-          <div v-if="permission === '0' || permission === '2'">
+          <!--教师端-->
+          <div v-if="permission === '0'">
           <table class="custom-border" border="1" cellspacing="0" width=500px height=160px bgcolor=white>
             <tbody>
             <tr>
@@ -90,6 +134,72 @@
             </tbody>
           </table>
           </div>
+
+          <!--管理员单独班级-->
+              <div v-if="permission === '2' && compareType === 'single'">
+              <table class="custom-border" border="1" cellspacing="0" width=500px height=160px bgcolor=white>
+              <tbody>
+              <tr>
+                  <td style="width: 25%; text-align: center; color: black; font-size:16px">选项</td>
+                  <td style="width: 25%; text-align: center; color: black; font-size:16px" v-for="(count, option) in questionData[question]?.optionCounts1" :key="option">
+                  {{ option }}
+                  </td>
+              </tr>
+              <tr>
+                  <td style="height: 33.333%; text-align: center; color: black; font-size:16px">选择人数</td>
+                  <td style="height: 33.333%; text-align: center; color: black; font-size:16px" v-for="(count, option) in questionData[question]?.optionCounts1" :key="option">
+                      {{ count }} 人
+                  </td>
+              </tr>
+              <tr>
+                  <td colspan=5 style="color: black; font-size:16px"><span class="option-percentages-container">&nbsp;&nbsp;&nbsp;&nbsp;正确人数比：{{ questionData[question]?.optionPercentages1 || '0' }}</span></td>
+              </tr>
+              </tbody>
+              </table>
+              </div>
+
+            <!--管理员端-->
+              <div v-if="permission === '2' && compareType !== 'single'">
+                  <table class="custom-border" border="1" cellspacing="0" width=500px height=160px bgcolor=white>
+                  <tbody>
+                  <tr>
+                      <td style="width: 25%; text-align: center; color: black; font-size:16px">选项</td>
+                      <td style="width: 25%; text-align: center; color: black; font-size:16px" v-for="(count, option) in questionData[question]?.optionCounts1" :key="option">
+                      {{ option }}
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="height: 33.333%; text-align: center; color: black; font-size:16px">选择人数</td>
+                      <td style="height: 33.333%; text-align: center; color: black; font-size:16px" v-for="(count, option) in questionData[question]?.optionCounts1" :key="option">
+                          {{ count }} 人
+                      </td>
+                  </tr>
+                  <tr>
+                      <td colspan=5 style="color: black; font-size:16px"><span class="option-percentages-container">&nbsp;&nbsp;&nbsp;&nbsp;正确人数比：{{ questionData[question]?.optionPercentages1 || '0' }}</span></td>
+                  </tr>
+                  </tbody>
+                  </table>
+                  <table class="custom-border" border="1" cellspacing="0" width=500px height=160px bgcolor=white>
+                  <tbody>
+                  <tr>
+                      <td style="width: 25%; text-align: center; color: black; font-size:16px">选项</td>
+                      <td style="width: 25%; text-align: center; color: black; font-size:16px" v-for="(count, option) in questionData[question]?.optionCounts2" :key="option">
+                      {{ option }}
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="height: 33.333%; text-align: center; color: black; font-size:16px">选择人数</td>
+                      <td style="height: 33.333%; text-align: center; color: black; font-size:16px" v-for="(count, option) in questionData[question]?.optionCounts2" :key="option">
+                          {{ count }} 人
+                      </td>
+                  </tr>
+                  <tr>
+                      <td colspan=5 style="color: black; font-size:16px"><span class="option-percentages-container">&nbsp;&nbsp;&nbsp;&nbsp;正确人数比：{{ questionData[question]?.optionPercentages2 || '0' }}</span></td>
+                  </tr>
+                  </tbody>
+                  </table>
+              </div>
+
         </div>
       </div>
      </div>
@@ -121,7 +231,13 @@ export default {
                 { text: 'C', value: 'C' },
             ],
             questionData: {},
+            questionData2: {},
             selectedClass: '11',
+            selectedClass1: '',
+            selectedClass2: '',
+            selectedCampus1: '',
+            selectedCampus2: '',
+            compareType: 'single',
             optionCounts: {},
             optionPercentages: {},
             staticData: {
@@ -211,28 +327,96 @@ export default {
                         console.log(questionData);
                     } else if (this.permission === '2') {
                         // 获取选项人数比
-                        const optionResponse = await axios.get('http://localhost:3000/api/option-percentages', {
+                        if (this.compareType === 'single') {
+                          const optionResponse = await axios.get('http://localhost:3000/api/option-accuracy', {
                             params: { question, class: this.selectedClass }
-                        });
-                        console.log(optionResponse);
-                        const optionPercentages = optionResponse.data.optionPercentages;
-                        console.log(optionPercentages);
+                          });
+                          console.log(optionResponse);
+                          const optionPercentages = optionResponse.data.accuracyRate;
+                          console.log(optionPercentages);
 
-                        const optionCountsResponse = await axios.get('http://localhost:3000/api/option-counts', {
+                          const optionCountsResponse = await axios.get('http://localhost:3000/api/option-counts', {
                             params: { question, class: this.selectedClass }
-                        });
-                        const optionCounts = optionCountsResponse.data.optionCounts;
+                          });
+                          const optionCounts = optionCountsResponse.data.optionCounts;
 
-                        questionData[question] = {
+                          
+                          const referenceAnalysis = this.referenceAnalysis;
+
+                          questionData[question] = {
                             correctAnswer,
                             listeningText,
-                            optionPercentages,
-                            optionCounts
-                        };
+                            optionCounts1: optionCounts,
+                            optionCounts2: '0',
+                            optionPercentages1: optionPercentages,
+                            optionPercentages2: '0',
+                            referenceAnalysis
+                          };
 
-                        this.optionCounts = optionCounts;
-                        console.log.optionCounts;
-                    } else if (this.permission === '0') {
+                          this.optionCounts = optionCounts;
+                          console.log.optionCounts;
+                        } else if (this.compareType === 'double-class') {
+                          console.log("可以进来这里吗");
+                          console.log("第一个班级", this.selectedClass1);
+                          console.log("第二个班级", this.selectedClass2);
+                          const optionCounts1Response = await axios.get('http://localhost:3000/api/option-counts', {
+                            params: { question, class: this.selectedClass1 }
+                          });
+                          const optionCounts2Response = await axios.get('http://localhost:3000/api/option-counts', {
+                            params: { question, class: this.selectedClass2 }
+                          });
+
+                          const optionPercentages1Response = await axios.get('http://localhost:3000/api/option-accuracy', {
+                            params: { question, class: this.selectedClass1 }
+                          });
+                          const optionPercentages2Response = await axios.get('http://localhost:3000/api/option-accuracy', {
+                            params: { question, class: this.selectedClass2 }
+                          });
+
+                          const referenceAnalysis = this.referenceAnalysis;
+
+                          questionData[question] = {
+                            correctAnswer,
+                            listeningText,
+                            optionCounts1: optionCounts1Response.data.optionCounts,
+                            optionCounts2: optionCounts2Response.data.optionCounts,
+                            optionPercentages1: optionPercentages1Response.data.accuracyRate,
+                            optionPercentages2: optionPercentages2Response.data.accuracyRate,
+                            referenceAnalysis
+                          };
+                          console.log("所需要展示的所有数据", questionData);
+                        } else if (this.compareType === 'double-campus') {
+                          console.log("可以进来这里吗");
+                          console.log("第一个校区", this.selectedCampus1);
+                          console.log("第二个校区", this.selectedCampus2);
+                          const optionCounts1Response = await axios.get('http://localhost:3000/api/option-counts-campusCom', {
+                            params: { question, school: this.selectedCampus1 }
+                          });
+                          const optionCounts2Response = await axios.get('http://localhost:3000/api/option-counts-campusCom', {
+                            params: { question, school: this.selectedCampus2 }
+                          });
+
+                          const optionPercentages1Response = await axios.get('http://localhost:3000/api/option-accuracy-campusCom', {
+                            params: { question, school: this.selectedCampus1 }
+                          });
+                          const optionPercentages2Response = await axios.get('http://localhost:3000/api/option-accuracy-campusCom', {
+                            params: { question, school: this.selectedCampus2 }
+                          });
+
+                          const referenceAnalysis = this.referenceAnalysis;
+
+                          questionData[question] = {
+                            correctAnswer,
+                            listeningText,
+                            optionCounts1: optionCounts1Response.data.optionCounts,
+                            optionCounts2: optionCounts2Response.data.optionCounts,
+                            optionPercentages1: optionPercentages1Response.data.accuracyRate,
+                            optionPercentages2: optionPercentages2Response.data.accuracyRate,
+                            referenceAnalysis
+                          };
+                          console.log("所需要展示的所有数据", questionData);
+                        }
+                      } else if (this.permission === '0') {
                         // 获取选项人数比
                         const optionResponse = await axios.get('http://localhost:3000/api/option-percentages', {
                             params: { question, class: this.selectedClass }
